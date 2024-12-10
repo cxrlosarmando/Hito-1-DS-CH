@@ -1,6 +1,7 @@
 import express from "express";
 import authRoute from "./routes/auth-route";
 import userRoute from "./routes/user.route";
+import { pool } from "./config/database";
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -11,6 +12,19 @@ app.use(express.urlencoded({ extended: true }));
 app.use("/api/v1/login", userRoute);
 app.use("/api/v1/auth", authRoute);
 
-app.listen(port, () => {
-  console.log("Servidor andando en el puerto: " + port);
-});
+const main = async() => {
+  try{
+    const response = await pool.query("SELECT NOW()");
+    console.log("Servidor inicializado: ", response);
+    app.listen(port, () => {
+      console.log("Servidor andando en el puerto: " + port);
+    });
+
+
+  } catch (error){
+    console.error(error);
+    
+  }
+} 
+
+main();
