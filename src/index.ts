@@ -14,8 +14,8 @@ app.use("/api/v1/auth", authRoute);
 
 const main = async() => {
   try{
-    const response = await pool.query("SELECT NOW()");
-    console.log("Servidor inicializado: ", response);
+    const {rows} = await pool.query("SELECT NOW()");
+    console.log(rows[0].now , "db connection established");
     app.listen(port, () => {
       console.log("Servidor andando en el puerto: " + port);
     });
