@@ -1,6 +1,4 @@
 import bcrypt from "bcryptjs";
-import { nanoid } from "nanoid";
-import { User } from "../interface/user";
 import { UserModel } from "../models/user.model";
 
 

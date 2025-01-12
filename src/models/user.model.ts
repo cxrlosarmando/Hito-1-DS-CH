@@ -1,4 +1,4 @@
-import { pool } from '../config/database'
+import { sequelize} from '../config/sequelize'
 
 const getUserByEmail = async (email: string) => {
   const query = {
