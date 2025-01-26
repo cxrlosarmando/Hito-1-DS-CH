@@ -1,50 +1,52 @@
-import { sequelize} from '../config/sequelize'
+import { sequelize } from '../config/sequelize';
+import { DataTypes } from 'sequelize';
+
+
+const User = sequelize.define('User', {
+  email: {
+    type: DataTypes.STRING,
+    allowNull: false,
+    unique: true,
+  },
+  password: {
+    type: DataTypes.STRING,
+    allowNull: false,
+  },
+}, {
+  timestamps: true, 
+  tableName: 'users',
+});
 
 const getUserByEmail = async (email: string) => {
-  const query = {
-    text: `SELECT * FROM users WHERE email = $1`,
-    values: [email],
-  };
-  const { rows } = await pool.query(query);
-  console.log(rows);
-
-  return rows[0];
+  const user = await User.findOne({ where: { email } });
+  console.log(user);
+  return user;
 };
 
 const create = async (email: string, password: string) => {
-  const query = {
-    text: `INSERT INTO users(email, password) VALUES($1, $2) RETURNING *`,
-    values: [email, password],
-  };
-  const { rows } = await pool.query(query);
-  console.log(rows);
-
-  return rows[0];
+  const newUser = await User.create({ email, password });
+  console.log(newUser);
+  return newUser;
 };
 
 const remove = async (email: string) => {
-  const query = {
-    text: `DELETE FROM users WHERE email = $1 RETURNING *`, 
-    values: [email]
-  };
-  const { rows } = await pool.query(query);
-  console.log(rows);
-  return rows[0];
+  const deletedUser = await User.destroy({ where: { email } });
+  console.log(deletedUser);
+  return deletedUser;
 };
 
 const update = async (id: string, email: string, password: string) => {
-  const query = {
-    text: `UPDATE users SET email = $1, password = $2, updated_at = NOW() WHERE id = $3 RETURNING *`,
-    values: [email, password, id],
-  };
-  const { rows } = await pool.query(query);
-  console.log(rows);
-  return rows[0];
+  const updatedUser = await User.update(
+    { email, password },
+    { where: { id }, returning: true }
+  );
+  console.log(updatedUser);
+  return updatedUser;
 };
 
 export const UserModel = {
   create,
   getUserByEmail,
   remove,
-  update
+  update,
 };

@@ -2,7 +2,7 @@ import bcrypt from "bcryptjs";
 import { UserModel } from "../models/user.model";
 
 
-const getAllUsers = async (email: string) =>{
+const getAllUsers = async (email: string,) =>{
   const users= await UserModel.getUserByEmail(email);
   if(!users) throw new Error("User not found");
   return users;
@@ -33,10 +33,15 @@ const updateUserById = async (id: string, email: string, password: string) => {
   const updatedUser = await UserModel.update(id, email, hashedPassword);
   return updatedUser;
 };
-
+const getUserByEmail = async (email: string) => {
+  const user = await UserModel.getUserByEmail(email);
+  if (!user) throw new Error("User not found");
+  return user;
+};
 export const userService = {
   createUserWithEmailAndPassword,
   deleteUserById,
   updateUserById,
-  getAllUsers
+  getAllUsers,
+  getUserByEmail
 };
