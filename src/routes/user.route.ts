@@ -4,8 +4,6 @@ import { verifyToken } from "../midlleware/authMiddleware";
 
 const router = Router();
 router.get("/:id", userController.getUsers);
-router.put("/api/update/:id", userController.updateUser);
-router.delete("/api/delete", verifyToken, userController.deleteUser);
-router.post("/", userController.createUser);
+router.post("/create", userController.createUser);
 
 export default router;

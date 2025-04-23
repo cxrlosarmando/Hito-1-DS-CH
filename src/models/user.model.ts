@@ -1,50 +1,43 @@
-import { pool } from '../config/database'
+import { sequelize } from '../config/sequelize';
+import { DataTypes, Model, Optional } from "sequelize";
 
-const getUserByEmail = async (email: string) => {
-  const query = {
-    text: `SELECT * FROM users WHERE email = $1`,
-    values: [email],
-  };
-  const { rows } = await pool.query(query);
-  console.log(rows);
+interface IUser {
+  id?: number;
+  email: string;
+  password: string;
+}
 
-  return rows[0];
-};
 
-const create = async (email: string, password: string) => {
-  const query = {
-    text: `INSERT INTO users(email, password) VALUES($1, $2) RETURNING *`,
-    values: [email, password],
-  };
-  const { rows } = await pool.query(query);
-  console.log(rows);
+interface IUserCreationAttributes extends Optional<IUser, "id"> {}
+class User extends Model<IUser, IUserCreationAttributes> implements IUser {
+  public id!: number;
+  public email!: string;
+  public password!: string;
+}
 
-  return rows[0];
-};
-
-const remove = async (email: string) => {
-  const query = {
-    text: `DELETE FROM users WHERE email = $1 RETURNING *`, 
-    values: [email]
-  };
-  const { rows } = await pool.query(query);
-  console.log(rows);
-  return rows[0];
-};
-
-const update = async (id: string, email: string, password: string) => {
-  const query = {
-    text: `UPDATE users SET email = $1, password = $2, updated_at = NOW() WHERE id = $3 RETURNING *`,
-    values: [email, password, id],
-  };
-  const { rows } = await pool.query(query);
-  console.log(rows);
-  return rows[0];
-};
-
-export const UserModel = {
-  create,
-  getUserByEmail,
-  remove,
-  update
-};
+User.init(
+  {
+    id: {
+      type: DataTypes.INTEGER,
+      autoIncrement: true,
+      primaryKey: true,
+    },
+    email: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      unique: true,
+      validate: { isEmail: true },
+    },
+    password: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+  },
+  {
+    sequelize,
+    modelName: "User",
+    tableName: "users",
+    timestamps: true,
+  }
+);
+export default User;

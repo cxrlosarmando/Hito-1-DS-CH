@@ -1,44 +1,61 @@
 import bcrypt from "bcryptjs";
-import { nanoid } from "nanoid";
-import { User } from "../interface/user";
-import { UserModel } from "../models/user.model";
+import  User  from "../models/user.model"; 
 
 
-const getAllUsers = async (email: string) =>{
-  const users= await UserModel.getUserByEmail(email);
-  if(!users) throw new Error("User not found");
+const getAllUsers = async () => {
+  const users = await User.findAll();
   return users;
-} 
-const createUserWithEmailAndPassword = async (email: string, password: string) => {
-  const user = await UserModel.getUserByEmail(email);
+};
 
-  if (user) throw new Error("User already exists");
+
+const getUserByEmail = async (email: string) => {
+  const user = await User.findOne({ where: { email } });
+
+  if (!user) throw new Error("User not found");
+  return user;
+};
+
+
+const createUserWithEmailAndPassword = async (email: string, password: string) => {
+  const userExists = await User.findOne({ where: { email } });
+
+  if (userExists) throw new Error("User already exists");
 
   const salt = await bcrypt.genSalt(10);
   const hashedPassword = await bcrypt.hash(password, salt);
-  const newUser = await UserModel.create(email, hashedPassword);
+
+  const newUser = await User.create({ email, password: hashedPassword }); // Pasamos un objeto
   return newUser;
 };
 
+
 const deleteUserById = async (id: string) => {
-  const user = await UserModel.getUserByEmail(id);
+  const user = await User.findByPk(id); 
 
   if (!user) throw new Error("User not found");
 
-  const deletedUser = await UserModel.remove(id);
-  return deletedUser;
+  await user.destroy(); 
+  return { message: "User deleted successfully" };
 };
 
+
 const updateUserById = async (id: string, email: string, password: string) => {
+  const user = await User.findByPk(id);
+
+  if (!user) throw new Error("User not found");
+
   const salt = await bcrypt.genSalt(10);
   const hashedPassword = await bcrypt.hash(password, salt);
-  const updatedUser = await UserModel.update(id, email, hashedPassword);
-  return updatedUser;
+
+  await user.update({ email, password: hashedPassword });
+
+  return user;
 };
 
 export const userService = {
   createUserWithEmailAndPassword,
   deleteUserById,
   updateUserById,
-  getAllUsers
+  getAllUsers,
+  getUserByEmail,
 };
